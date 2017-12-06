@@ -21,13 +21,6 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
 
     private var fragmentActive = false;
 
-    private val refreshThread = Thread {
-        while (fragmentActive) {
-            Thread.sleep(1000)
-            ratesViewModel?.refreshRates()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -72,7 +65,14 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
     override fun onStart() {
         super.onStart()
         fragmentActive=true
-        refreshThread.start()
+        refreshThread().start()
+    }
+
+    fun refreshThread() = Thread {
+        while (fragmentActive) {
+            Thread.sleep(1000)
+            ratesViewModel?.refreshRates()
+        }
     }
 
     override fun onStop() {
