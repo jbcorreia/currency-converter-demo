@@ -66,82 +66,33 @@ class RateViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
     }
 
     private fun getCurrencyFlag(currencyName: String): Int {
+        var currencyFlag: Int
 
-        return when (currencyName) {
-            "EUR" -> R.drawable.ic_eu
-            "AUD" -> R.drawable.ic_au
-            "BGN" -> R.drawable.ic_bg
-            "BRL" -> R.drawable.ic_br
-            "CAD" -> R.drawable.ic_ca
-            "CHF" -> R.drawable.ic_ch
-            "CNY" -> R.drawable.ic_cn
-            "CZK" -> R.drawable.ic_cz
-            "DKK" -> R.drawable.ic_dk
-            "GBP" -> R.drawable.ic_gb
-            "HKD" -> R.drawable.ic_hk
-            "HRK" -> R.drawable.ic_hr
-            "HUF" -> R.drawable.ic_hu
-            "IDR" -> R.drawable.ic_id
-            "ILS" -> R.drawable.ic_il
-            "INR" -> R.drawable.ic_in
-            "JPY" -> R.drawable.ic_jp
-            "KRW" -> R.drawable.ic_kr
-            "MXN" -> R.drawable.ic_mx
-            "MYR" -> R.drawable.ic_my
-            "NOK" -> R.drawable.ic_no
-            "NZD" -> R.drawable.ic_nz
-            "PHP" -> R.drawable.ic_ph
-            "PLN" -> R.drawable.ic_pl
-            "RON" -> R.drawable.ic_ro
-            "RUB" -> R.drawable.ic_ru
-            "SEK" -> R.drawable.ic_se
-            "SGD" -> R.drawable.ic_sg
-            "THB" -> R.drawable.ic_th
-            "TRY" -> R.drawable.ic_tr
-            "USD" -> R.drawable.ic_us
-            "ZAR" -> R.drawable.ic_za
+        val resources = currencyImage.context.resources
+        val packageName = currencyImage.context.packageName
+        val drawableName = "ic_"+currencyName.substring(0,2).toLowerCase()
 
-            else -> R.drawable.ic_eu
-        }
+        currencyFlag = try {
+            resources.getIdentifier(drawableName, "drawable", packageName)
+        } catch (e: Exception) { 0 }
+
+        if (currencyFlag==0)
+            currencyFlag = R.drawable.ic_eu
+
+        return currencyFlag
     }
 
     private fun getCurrencyDesc(currencyName: String): String {
+        var currencyDescName: String
 
-        return when (currencyName) {
-            "EUR" -> currencyDesc.context.getString(R.string.EUR)
-            "AUD" -> currencyDesc.context.getString(R.string.AUD)
-            "BGN" -> currencyDesc.context.getString(R.string.BGN)
-            "BRL" -> currencyDesc.context.getString(R.string.BRL)
-            "CAD" -> currencyDesc.context.getString(R.string.CAD)
-            "CHF" -> currencyDesc.context.getString(R.string.CHF)
-            "CNY" -> currencyDesc.context.getString(R.string.CNY)
-            "CZK" -> currencyDesc.context.getString(R.string.CZK)
-            "DKK" -> currencyDesc.context.getString(R.string.DKK)
-            "GBP" -> currencyDesc.context.getString(R.string.GBP)
-            "HKD" -> currencyDesc.context.getString(R.string.HKD)
-            "HRK" -> currencyDesc.context.getString(R.string.HRK)
-            "HUF" -> currencyDesc.context.getString(R.string.HUF)
-            "IDR" -> currencyDesc.context.getString(R.string.IDR)
-            "ILS" -> currencyDesc.context.getString(R.string.ILS)
-            "INR" -> currencyDesc.context.getString(R.string.INR)
-            "JPY" -> currencyDesc.context.getString(R.string.JPY)
-            "KRW" -> currencyDesc.context.getString(R.string.KRW)
-            "MXN" -> currencyDesc.context.getString(R.string.MXN)
-            "MYR" -> currencyDesc.context.getString(R.string.MYR)
-            "NOK" -> currencyDesc.context.getString(R.string.NOK)
-            "NZD" -> currencyDesc.context.getString(R.string.NZD)
-            "PHP" -> currencyDesc.context.getString(R.string.PHP)
-            "PLN" -> currencyDesc.context.getString(R.string.PLN)
-            "RON" -> currencyDesc.context.getString(R.string.RON)
-            "RUB" -> currencyDesc.context.getString(R.string.RUB)
-            "SEK" -> currencyDesc.context.getString(R.string.SEK)
-            "SGD" -> currencyDesc.context.getString(R.string.SGD)
-            "THB" -> currencyDesc.context.getString(R.string.THB)
-            "TRY" -> currencyDesc.context.getString(R.string.TRY)
-            "USD" -> currencyDesc.context.getString(R.string.USD)
-            "ZAR" -> currencyDesc.context.getString(R.string.ZAR)
+        val resources = currencyDesc.context.resources
+        val packageName = currencyDesc.context.packageName
 
-            else -> "N/A"
+        currencyDescName= try {
+            resources.getString(resources.getIdentifier(currencyName, "string", packageName))
+        } catch (e: Exception) {
+            "N/A"
         }
+        return currencyDescName
     }
 }
