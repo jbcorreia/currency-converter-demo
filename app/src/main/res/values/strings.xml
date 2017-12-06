@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">CurrencyConverter</string>
+
+    <string name="NO_NET">No Internet!</string>
+
+    <!-- Currencies Descriptions-->
+    <string name="EUR">Euro</string>
+    <string name="AUD">Australian Dollar</string>
+    <string name="BGN">Bulgarian Lev</string>
+    <string name="BRL">Brazilian Real</string>
+    <string name="CAD">Canadian Dollar</string>
+    <string name="CHF">Swiss Franc</string>
+    <string name="CNY">Renminbi</string>
+    <string name="CZK">Czech Koruna</string>
+    <string name="DKK">Danish Krone</string>
+    <string name="GBP">Pound Sterling</string>
+    <string name="HKD">Hong Kong Dollar</string>
+    <string name="HRK">Croatian Kuna</string>
+    <string name="HUF">Hungarian Forint</string>
+    <string name="IDR">Indonesian Rupiah</string>
+    <string name="ILS">Israeli New Shekel</string>
+    <string name="INR">Indian Rupee</string>
+    <string name="JPY">Japanese Yen</string>
+    <string name="KRW">South Korean Won</string>
+    <string name="MXN">Mexican Peso</string>
+    <string name="MYR">Malaysian Ringgit</string>
+    <string name="NOK">Norwegian Krone</string>
+    <string name="NZD">New Zealand Dollar</string>
+    <string name="PHP">Philippine Peso</string>
+    <string name="PLN">Polish Złoty</string>
+    <string name="RON">Romanian Leu</string>
+    <string name="RUB">Russian ruble</string>
+    <string name="SEK">Swedish Krona</string>
+    <string name="SGD">Singapore Dollar</string>
+    <string name="THB">Thai baht</string>
+    <string name="TRY">Turkish Lira</string>
+    <string name="USD">United States Dollar</string>
+    <string name="ZAR">South African rand</string>
+
+</resources>
