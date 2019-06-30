@@ -1,7 +1,7 @@
 package com.jcorreia.currencyconverter.ui
 
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.widget.RecyclerView
+import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.RecyclerView
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
@@ -14,7 +14,7 @@ import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
  * Created by jcorreia on 05/12/2017.
  * Simple ViewHolder for the items in the RatesAdapter
  */
-class RateViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
+class RateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     val rateLayout: View
     val currencyName: TextView

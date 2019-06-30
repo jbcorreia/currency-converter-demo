@@ -1,6 +1,6 @@
 package com.jcorreia.currencyconverter.ui
 
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
 
 /**

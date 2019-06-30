@@ -1,7 +1,7 @@
 package com.jcorreia.currencyconverter.ui
 
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
 import android.os.Handler
 import com.jcorreia.currencyconverter.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -19,7 +21,6 @@ import java.util.*
  */
 class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapter<RateViewHolder>() {
 
-    private val handler:Handler = Handler()
     private val valueWatcher: TextWatcher
     private var ratesList: List<CurrencyRate>? = null
 
@@ -60,9 +61,9 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RateViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RateViewHolder {
 
-        val view: View = LayoutInflater.from(parent!!.context)
+        val view: View = LayoutInflater.from(parent.context)
                 .inflate(R.layout.rate, parent, false)
 
         val rateHolder = RateViewHolder(view)
@@ -80,20 +81,20 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
         return rateHolder
     }
 
-    override fun onBindViewHolder(holder: RateViewHolder?, position: Int) {
-        holder?.bindTo(ratesList!![position],position,valueWatcher)
+    override fun onBindViewHolder(holder: RateViewHolder, position: Int) {
+        holder.bindTo(ratesList!![position],position,valueWatcher)
     }
 
-    override fun onBindViewHolder(holder: RateViewHolder?, position: Int, payloads: MutableList<Any>?) {
+    override fun onBindViewHolder(holder: RateViewHolder, position: Int, payloads: MutableList<Any>) {
 
-        val set = payloads?.firstOrNull() as Set<String>?
+        val set = payloads.firstOrNull() as Set<String>?
 
         if (set==null || set.isEmpty() ) {
             return super.onBindViewHolder(holder, position, payloads)
         }
 
         if (set.contains(RatesDiff.VALUE_CHG)){
-            holder?.updateValue(ratesList!![position],position)
+            holder.updateValue(ratesList!![position],position)
         }
     }
 
@@ -114,7 +115,7 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
      */
     val pendingList: Deque<List<CurrencyRate>> = LinkedList()
 
-    fun updateList(newRatesList: List<CurrencyRate>) {
+    suspend fun updateList(newRatesList: List<CurrencyRate>)  {
         if (ratesList == null) {
             ratesList = newRatesList
             notifyItemRangeInserted(0, newRatesList.size)
@@ -129,31 +130,36 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
         calculateDiff(newRatesList)
     }
 
-    /** We call the DiffUtil callback on a thread to maximize
+    /** We call the DiffUtil callback using a coroutine to maximize
      *  UI performance with minimal lag
      */
-    private fun calculateDiff(latest: List<CurrencyRate>) {
-        Thread({
+    private suspend fun calculateDiff(latest: List<CurrencyRate>) {
+
+        val ratesAdapter = this
+
+        // Use Default for CPU intensive tasks
+        withContext(Dispatchers.Default) {
 
             val diffResult = DiffUtil.calculateDiff(RatesDiff(ratesList!!, latest))
 
-            val newRootRate: Boolean = (ratesList!![0].currency!= latest[0].currency)
+            val newRootRate: Boolean = (ratesList!![0].currency != latest[0].currency)
             ratesList = latest
 
             pendingList.remove(latest)
 
-            handler.post {
-                diffResult.dispatchUpdatesTo(this)
+            // Update UI on the Main Thread
+            withContext(Dispatchers.Main) {
+                diffResult.dispatchUpdatesTo(ratesAdapter)
                 if (newRootRate)
                     callback.scrollToTop()
             }
 
-            if (pendingList.size>0){
+            if (pendingList.size > 0) {
                 // Get the latest data
-                calculateDiff(pendingList. pop())
+                calculateDiff(pendingList.pop())
                 // Remove possible outdated data so we don't process it
                 pendingList.clear()
             }
-        }).start()
+        }
     }
 }

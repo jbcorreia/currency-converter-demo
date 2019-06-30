@@ -1,18 +1,19 @@
 package com.jcorreia.currencyconverter.ui
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jcorreia.currencyconverter.R
 import com.jcorreia.currencyconverter.viewmodel.RatesViewModel
 import kotlinx.android.synthetic.main.fragment_rates.*
+import kotlinx.coroutines.*
 
 class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
 
@@ -57,7 +58,9 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
         ratesViewModel?.getCurrencyRates()?.observe(this,
                 Observer {currencyRates ->
                     if (currencyRates != null) {
-                        ratesAdapter?.updateList(currencyRates)
+                        GlobalScope.launch(Dispatchers.Main) {
+                            ratesAdapter?.updateList(currencyRates)
+                        }
                     }
                 })
     }
@@ -65,12 +68,14 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
     override fun onStart() {
         super.onStart()
         fragmentActive=true
-        refreshThread().start()
+        GlobalScope.launch(Dispatchers.Main) {
+            refreshThread()
+        }
     }
 
-    fun refreshThread() = Thread {
+    suspend fun refreshThread() = withContext(Dispatchers.Main) {
         while (fragmentActive) {
-            Thread.sleep(1000)
+            delay(1000)
             ratesViewModel?.refreshRates()
         }
     }

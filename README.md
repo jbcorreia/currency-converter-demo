@@ -7,7 +7,8 @@ Simple Real-time Currency Converter done entirely in *[Kotlin](https://developer
 Using:
  - Retrofit2 for the Api
  - ViewModel/LiveData using the [Architecture Components](https://developer.android.com/topic/libraries/architecture/viewmodel.html)
- - RecyclerView with DiffUtil, LIFO and Payloads for smooth UI updates with always the latest data
+ - RecyclerView with DiffUtil, LIFO, Payloads and Coroutines for smooth UI updates with always the latest data
+ - Coroutines
 
 ---
 <p align="center">

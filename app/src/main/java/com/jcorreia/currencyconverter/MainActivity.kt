@@ -1,7 +1,7 @@
 package com.jcorreia.currencyconverter
 
-import android.arch.lifecycle.ViewModelProviders
-import android.support.v7.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.jcorreia.currencyconverter.ui.RatesFragment
 import com.jcorreia.currencyconverter.viewmodel.RatesViewModel
