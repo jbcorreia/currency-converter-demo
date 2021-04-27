@@ -1,20 +1,15 @@
 package com.jcorreia.currencyconverter.api
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.jcorreia.currencyconverter.api.model.LatestRates
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * Created by jcorreia on 01/12/2017.
  *
- * Use Retrofit to get the JSON from the server and
- * LiveData to publish it to whoever is listening,
- * in this sample it's going to be the RatesViewModel
+ * Use Retrofit to get the JSON from the server
+ * using coroutines
  */
 object ApiClient {
 
@@ -34,23 +29,16 @@ object ApiClient {
         service = retrofit.create(ApiInterface::class.java)
     }
 
-    /**
-     * Use LiveData to subscribe the latest data from the server
-     */
-    fun getLatestRates() : LiveData<LatestRates> = latestRates
+    suspend fun refreshLatestRates(baseCurrency : String) : ApiResult<LatestRates> {
 
-    fun refreshLatestRates(baseCurrency : String)  {
+        val response = service.getLatestRates(baseCurrency)
 
-        service.getLatestRates(baseCurrency).enqueue(object : Callback<LatestRates> {
-            override fun onFailure(call: Call<LatestRates>?, t: Throwable?) {
-                //Handle errors - No internet connection, etc
-            }
+        if (response.isSuccessful)
+            return ApiResult.Success(response.body()!!)
 
-            override fun onResponse(call: Call<LatestRates>, response: Response<LatestRates>) {
+        // Here we would need to parse the error properly just PoC
+        return ApiResult.UnknownError("Unknown Error");
 
-                if (response.isSuccessful)
-                    latestRates.value = response.body()
-            }
-        })
     }
+
 }

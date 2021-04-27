@@ -1,12 +1,12 @@
 package com.jcorreia.currencyconverter.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
+import android.util.Log
+import androidx.lifecycle.*
 import com.jcorreia.currencyconverter.api.ApiClient
+import com.jcorreia.currencyconverter.api.ApiResult
 import com.jcorreia.currencyconverter.api.model.LatestRates
 import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
+import kotlinx.coroutines.launch
 
 /**
  * Created by jcorreia on 01/12/2017.
@@ -19,30 +19,7 @@ class RatesViewModel : ViewModel() {
     private var baseCurrency: String = "EUR"
     private var baseValue: Float = 100F
 
-    private val latestRatesObs: Observer<LatestRates>;
     private val currencyRates: MutableLiveData<List<CurrencyRate>> = MutableLiveData()
-
-    /**
-     * Default Constructor
-     *
-     * Setup LatestRates Observer from ApiClient
-     *
-     */
-    init {
-
-        latestRatesObs = Observer {
-            if (it != null) updateLatestRates(it)
-        }
-
-        ApiClient.getLatestRates().observeForever(latestRatesObs)
-    }
-
-    /**
-     * Stop observing currencyRates when ViewModel is destroyed
-     */
-    override fun onCleared() {
-        ApiClient.getLatestRates().removeObserver(latestRatesObs)
-    }
 
     /**
      * Converts the latest data to a List<CurrencyRate>
@@ -68,7 +45,14 @@ class RatesViewModel : ViewModel() {
     fun getCurrencyRates() : LiveData<List<CurrencyRate>> = currencyRates
 
     fun refreshRates() {
-        ApiClient.refreshLatestRates(baseCurrency);
+        viewModelScope.launch {
+            val apiResult = ApiClient.refreshLatestRates(baseCurrency);
+
+            when (apiResult) {
+                is ApiResult.Success -> updateLatestRates(apiResult.data)
+                is ApiResult.UnknownError -> Log.d("RatesViewModel","ApiError: ${apiResult.errorMessage}")
+            }
+        }
     }
 
     fun setNewBase(newBaseCurrency: String, newBaseValue: Float) {

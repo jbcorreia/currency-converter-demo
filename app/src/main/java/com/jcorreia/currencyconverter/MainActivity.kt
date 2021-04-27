@@ -1,8 +1,8 @@
 package com.jcorreia.currencyconverter
 
-import androidx.lifecycle.ViewModelProviders
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import com.jcorreia.currencyconverter.ui.RatesFragment
 import com.jcorreia.currencyconverter.viewmodel.RatesViewModel
 
@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Init our ViewModel and fetch latest data
-        val ratesViewModel: RatesViewModel = ViewModelProviders.of(this).get(RatesViewModel::class.java)
+        val ratesViewModel: RatesViewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory(application)).get(RatesViewModel::class.java)
         ratesViewModel.refreshRates()
 
         displayFragmentRates()

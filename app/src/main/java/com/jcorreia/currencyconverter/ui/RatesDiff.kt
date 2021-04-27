@@ -29,7 +29,7 @@ class RatesDiff(private val oldList: List<CurrencyRate>, private val newList: Li
         return oldList[oldItemPosition] == newList[newItemPosition]
     }
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
         val oldRate = oldList[oldItemPosition]
         val newRate = newList[newItemPosition]
 

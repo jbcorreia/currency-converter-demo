@@ -83,16 +83,14 @@ class RateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     private fun getCurrencyDesc(currencyName: String): String {
-        var currencyDescName: String
 
         val resources = currencyDesc.context.resources
         val packageName = currencyDesc.context.packageName
 
-        currencyDescName= try {
+        return try {
             resources.getString(resources.getIdentifier(currencyName, "string", packageName))
         } catch (e: Exception) {
             "N/A"
         }
-        return currencyDescName
     }
 }

@@ -1,7 +1,7 @@
 package com.jcorreia.currencyconverter.api
 
 import com.jcorreia.currencyconverter.api.model.LatestRates
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,6 +11,6 @@ import retrofit2.http.Query
 interface ApiInterface {
 
     @GET("latest")
-    fun getLatestRates(@Query("base") baseRate: String): Call<LatestRates>
+    suspend fun getLatestRates(@Query("base") baseRate: String): Response<LatestRates>
 
 }

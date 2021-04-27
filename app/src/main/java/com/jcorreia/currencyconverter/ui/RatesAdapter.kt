@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
-import android.os.Handler
 import com.jcorreia.currencyconverter.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,7 +15,7 @@ import java.util.*
 
 /**
  * RatesAdapter to be used by the RecyclerView
- * It used a DiffUtil Callback with payload to
+ * It uses a DiffUtil Callback with payload to
  * minimize UI lag and unnecessary data reload
  */
 class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapter<RateViewHolder>() {
@@ -71,7 +70,7 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
         rateHolder.rateLayout.setOnClickListener( object : View.OnClickListener  {
             override fun onClick(clickedView: View?) {
 
-                val pos: Int = rateHolder . getAdapterPosition ();
+                val pos: Int = rateHolder.bindingAdapterPosition;
                 if (pos != RecyclerView.NO_POSITION && pos>0) {
                     callback.onRateChanged(ratesList!![pos].currency, ratesList!![pos].value)
                 }
@@ -116,6 +115,7 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
     val pendingList: Deque<List<CurrencyRate>> = LinkedList()
 
     suspend fun updateList(newRatesList: List<CurrencyRate>)  {
+
         if (ratesList == null) {
             ratesList = newRatesList
             notifyItemRangeInserted(0, newRatesList.size)
