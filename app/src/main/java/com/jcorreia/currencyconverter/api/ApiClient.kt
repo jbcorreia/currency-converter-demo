@@ -2,6 +2,8 @@ package com.jcorreia.currencyconverter.api
 
 import androidx.lifecycle.MutableLiveData
 import com.jcorreia.currencyconverter.api.model.LatestRates
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,7 +33,7 @@ object ApiClient {
 
     suspend fun refreshLatestRates(baseCurrency : String) : ApiResult<LatestRates> {
 
-        val response = service.getLatestRates(baseCurrency)
+        val response = withContext(Dispatchers.IO) { service.getLatestRates(baseCurrency) }
 
         if (response.isSuccessful)
             return ApiResult.Success(response.body()!!)

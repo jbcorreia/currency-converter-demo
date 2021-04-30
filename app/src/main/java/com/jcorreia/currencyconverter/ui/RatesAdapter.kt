@@ -46,12 +46,11 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
 
             override fun afterTextChanged(newValue: Editable?) {
                 val strValue: String = newValue.toString().trim()
-                var value: Float
 
-                try {
-                    value = strValue.toFloat()
+                val value: Float = try {
+                    strValue.toFloat()
                 } catch (e: Exception) {
-                    value = 0F
+                    0F
                 }
 
                 ratesList!![0].value = value
@@ -86,7 +85,7 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
 
     override fun onBindViewHolder(holder: RateViewHolder, position: Int, payloads: MutableList<Any>) {
 
-        val set = payloads.firstOrNull() as Set<String>?
+        val set = payloads.firstOrNull() as Set<*>?
 
         if (set==null || set.isEmpty() ) {
             return super.onBindViewHolder(holder, position, payloads)
@@ -116,17 +115,14 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
 
     suspend fun updateList(newRatesList: List<CurrencyRate>)  {
 
+        // If first list
         if (ratesList == null) {
             ratesList = newRatesList
             notifyItemRangeInserted(0, newRatesList.size)
             return
         }
 
-        pendingList.push(newRatesList)
-
-        if (pendingList.size>1)
-            return
-
+        // Use DiffUtil to calculate the differences
         calculateDiff(newRatesList)
     }
 
@@ -138,28 +134,15 @@ class RatesAdapter(private val callback: OnRateInteraction) : RecyclerView.Adapt
         val ratesAdapter = this
 
         // Use Default for CPU intensive tasks
-        withContext(Dispatchers.Default) {
+        val diffResult = withContext(Dispatchers.Default) { DiffUtil.calculateDiff(RatesDiff(ratesList!!, latest)) }
 
-            val diffResult = DiffUtil.calculateDiff(RatesDiff(ratesList!!, latest))
+        val newRootRate: Boolean = (ratesList!![0].currency != latest[0].currency)
+        ratesList = latest
 
-            val newRootRate: Boolean = (ratesList!![0].currency != latest[0].currency)
-            ratesList = latest
+        // Update UI on the Main Thread
+        diffResult.dispatchUpdatesTo(ratesAdapter)
+        if (newRootRate)
+            callback.scrollToTop()
 
-            pendingList.remove(latest)
-
-            // Update UI on the Main Thread
-            withContext(Dispatchers.Main) {
-                diffResult.dispatchUpdatesTo(ratesAdapter)
-                if (newRootRate)
-                    callback.scrollToTop()
-            }
-
-            if (pendingList.size > 0) {
-                // Get the latest data
-                calculateDiff(pendingList.pop())
-                // Remove possible outdated data so we don't process it
-                pendingList.clear()
-            }
-        }
     }
 }

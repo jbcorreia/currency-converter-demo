@@ -6,6 +6,7 @@ import com.jcorreia.currencyconverter.api.ApiClient
 import com.jcorreia.currencyconverter.api.ApiResult
 import com.jcorreia.currencyconverter.api.model.LatestRates
 import com.jcorreia.currencyconverter.viewmodel.model.CurrencyRate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -38,14 +39,14 @@ class RatesViewModel : ViewModel() {
                 newCurrencyRates.add(CurrencyRate(currency, rate, rate*baseValue))
             }
 
-            currencyRates.value = newCurrencyRates
+            currencyRates.postValue(newCurrencyRates)
         }
     }
 
     fun getCurrencyRates() : LiveData<List<CurrencyRate>> = currencyRates
 
     fun refreshRates() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             val apiResult = ApiClient.refreshLatestRates(baseCurrency);
 
             when (apiResult) {
@@ -58,7 +59,7 @@ class RatesViewModel : ViewModel() {
     fun setNewBase(newBaseCurrency: String, newBaseValue: Float) {
 
         // Ignore if same
-        if (baseCurrency.equals(newBaseCurrency))
+        if (baseCurrency == newBaseCurrency)
             return;
 
         baseCurrency = newBaseCurrency
@@ -71,13 +72,15 @@ class RatesViewModel : ViewModel() {
         if (baseValue.equals(value))
             return
 
-        synchronized(RATE_UPDATE) {
-            baseValue = value
+        viewModelScope.launch(Dispatchers.Default) {
+            synchronized(RATE_UPDATE) {
+                baseValue = value
 
-            val newCurrencyRates: MutableList<CurrencyRate> = mutableListOf<CurrencyRate>()
+                val newCurrencyRates: MutableList<CurrencyRate> = mutableListOf<CurrencyRate>()
 
-            currencyRates.value?.forEach { newCurrencyRates.add(CurrencyRate(it.currency,it.rate,it.rate*baseValue))}
-            currencyRates.value = newCurrencyRates
+                currencyRates.value?.forEach { newCurrencyRates.add(CurrencyRate(it.currency,it.rate,it.rate*baseValue))}
+                currencyRates.postValue(newCurrencyRates)
+            }
         }
     }
 }

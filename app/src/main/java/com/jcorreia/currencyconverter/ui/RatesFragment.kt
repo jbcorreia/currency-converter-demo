@@ -1,6 +1,5 @@
 package com.jcorreia.currencyconverter.ui
 
-import androidx.lifecycle.Observer
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -10,10 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.jcorreia.currencyconverter.databinding.FragmentRatesBinding
 import com.jcorreia.currencyconverter.viewmodel.RatesViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 
 class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
 
@@ -48,7 +49,7 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
         binding.ratesRecyclerView.layoutManager = mLayoutManager
 
         val mDividerItemDecoration = DividerItemDecoration(
-                binding.ratesRecyclerView.getContext(),
+                binding.ratesRecyclerView.context,
                 mLayoutManager.orientation
         )
         binding.ratesRecyclerView.addItemDecoration(mDividerItemDecoration)
@@ -57,16 +58,14 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
 
     private fun observeModel() {
 
-        // Get latest rates and pass it over to the adapter
-        ratesViewModel?.getCurrencyRates()?.observe(viewLifecycleOwner,
-                Observer {currencyRates ->
-                    if (currencyRates != null) {
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            ratesAdapter?.updateList(currencyRates)
-                        }
-                    }
-                })
+        // Use Flow with collectLatest to always get latest rates and pass it over to the adapter
+        viewLifecycleOwner.lifecycleScope.launch {
+            ratesViewModel?.getCurrencyRates()?.asFlow()?.collectLatest {
+                ratesAdapter?.updateList(it)
+            }
+        }
 
+        // Refresh data every second
         viewLifecycleOwner.lifecycleScope.launch {
             while (true) {
                 delay(1000)
