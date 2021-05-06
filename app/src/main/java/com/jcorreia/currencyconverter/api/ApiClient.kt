@@ -33,13 +33,18 @@ object ApiClient {
 
     suspend fun refreshLatestRates(baseCurrency : String) : ApiResult<LatestRates> {
 
-        val response = withContext(Dispatchers.IO) { service.getLatestRates(baseCurrency) }
+        try {
+            val response = withContext(Dispatchers.IO) { service.getLatestRates(baseCurrency) }
 
-        if (response.isSuccessful)
-            return ApiResult.Success(response.body()!!)
+            if (response.isSuccessful)
+                return ApiResult.Success(response.body()!!)
 
-        // Here we would need to parse the error properly just PoC
-        return ApiResult.UnknownError("Unknown Error");
+            // Here we would need to parse the error properly just PoC
+            return ApiResult.UnknownError("Unknown Error");
+
+        } catch (e : Exception){
+            return ApiResult.UnknownError("Exception ${e.message}");
+        }
 
     }
 

@@ -24,12 +24,13 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
     private var ratesAdapter: RatesAdapter? = null
     private var ratesViewModel: RatesViewModel? = null
 
+    private var refreshRatesJob : Job? = null
+    private var refreshUIJob : Job? = null
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         ratesViewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory(activity!!.application)).get(RatesViewModel::class.java)
-
-        observeModel()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -56,22 +57,29 @@ class RatesFragment : Fragment(), RatesAdapter.OnRateInteraction {
 
     }
 
-    private fun observeModel() {
+    override fun onStart() {
+        super.onStart()
 
         // Use Flow with collectLatest to always get latest rates and pass it over to the adapter
-        viewLifecycleOwner.lifecycleScope.launch {
+        refreshUIJob = viewLifecycleOwner.lifecycleScope.launch {
             ratesViewModel?.getCurrencyRates()?.asFlow()?.collectLatest {
                 ratesAdapter?.updateList(it)
             }
         }
 
-        // Refresh data every second
-        viewLifecycleOwner.lifecycleScope.launch {
+        // Refresh data every 2 seconds
+        refreshRatesJob = viewLifecycleOwner.lifecycleScope.launch {
             while (true) {
-                delay(1000)
+                delay(2000)
                 ratesViewModel?.refreshRates()
             }
         }
+    }
+
+    override fun onStop() {
+        refreshRatesJob?.cancel()
+        refreshUIJob?.cancel()
+        super.onStop()
     }
 
     override fun scrollToTop() {
